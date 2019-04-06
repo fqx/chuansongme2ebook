@@ -53,8 +53,8 @@ class EBook():
     def get_list_of_articles(self):
         #  get all pages
         pages = self.home.find('span', style=pages_style)
-        page_num = len(pages.find_all('a')) + 1
-        # page_num = 1 # debug
+        # page_num = len(pages.find_all('a')) + 1
+        page_num = 1 # debug
 
         for page in range(page_num):
             sleep(random.random())
@@ -93,16 +93,20 @@ class EBook():
             remove_tags=('span', 'font', 'div')
         )
         soup = BeautifulSoup(html, features='lxml')
+        article = soup.find('div', id="js_article")
+
         try:
-            _ = soup.find('div', class_="header wrapper").extract()
-            _ = soup.find('div', class_="RecentPosts").extract()
-            _ = soup.find('div', class_="side e_col side_col w2_5").extract()
-            _ = soup.find('div', class_="footer wrapper").extract()
-            _ = soup('section', class_="xmt-style-block")[-1].extract()
+            # _ = soup.find('div', class_="header wrapper").extract()
+            # _ = soup.find('div', class_="RecentPosts").extract()
+            # _ = soup.find('div', class_="side e_col side_col w2_5").extract()
+            # _ = soup.find('div', id='wrapper').extract()
+            # _ = soup.find('div', style='padding:5px 5px 0px 5px;border-bottom:1px dotted #C8D8F2; height:30px;margin:5px 0px 0px 0px;border-top:1px dotted #C8D8F2;').extract()
+            # _ = soup.find('div', class_="footer wrapper").extract()
+            _ = article('section', class_="xmt-style-block")[-1].extract()
         except:
             pass
 
-        return cleaner.clean_html(soup.prettify())
+        return cleaner.clean_html(str(article))
 
     def img_process(self, html):
         soup = BeautifulSoup(html, features='lxml')
@@ -110,12 +114,13 @@ class EBook():
             try:
                 img_url = img['src']
             except:
+                _ = img.extract()
                 continue
             if img_url is '':
                 continue
             if img_url not in self.img_list.keys():  # save img to local
 
-                sleep(random.random())
+                # sleep(random.random())
                 if not re.match('http', img_url):
                     if re.match('//', img_url):
                         img_url = 'https:' + img_url
@@ -208,7 +213,7 @@ class EBook():
                          '    <title>'
                          ) + self.bookName + "文章汇总</title>\n</head>\n<body>\n<h2>微信公众号：" + self.bookName + "</h2>\n<p>共" + \
                         str(len(
-                            self.articles)) + "篇文章，最后更新：<em>" + strCurrentTimestamp + "</em></p>\n<ol>\n" + strHTML4Index + "\n</ol>\n</body>\n</html>"
+                            self.articles)) + "篇文章，制作时间：<em>" + strCurrentTimestamp + "</em></p>\n<ol>\n" + strHTML4Index + "\n</ol>\n</body>\n</html>"
         with open(self.OEBPS_loc + 'index.html', 'w') as f:
             f.write(strHTML4Index)
 
