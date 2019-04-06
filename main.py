@@ -9,9 +9,8 @@ import os
 import mimetypes
 from time import strftime, sleep
 import random
-import pickle
 
-timeout = 5
+timeout = 2
 csm_domain = r'https://chuansongme.com'
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.40 Safari/537.36",
@@ -32,7 +31,7 @@ class EBook():
 
     def __init__(self, url):
         assert urlisgood(url), "URL is not valid. It should look like 'https://chuansongme.com/account/gh_4c12eeda5979'"
-        print('initiating')
+        print('initialization')
         self.sess = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=10)
         self.sess.mount('http://', adapter)
@@ -53,8 +52,8 @@ class EBook():
     def get_list_of_articles(self):
         #  get all pages
         pages = self.home.find('span', style=pages_style)
-        # page_num = len(pages.find_all('a')) + 1
-        page_num = 1 # debug
+        page_num = len(pages.find_all('a')) + 1
+        # page_num = 1 # debug
 
         for page in range(page_num):
             sleep(random.random())
@@ -128,14 +127,13 @@ class EBook():
                         img_url = csm_domain+img_url
                 try:
                     req = self.sess.get(img_url, headers=headers, timeout=timeout)
+                    image = Image.open(BytesIO(req.content))
+                    image_name = 'img' + str(hash(img_url)) + '.png'
+                    image.save(self.images_loc + image_name)
+                    self.img_list['img_url'] = image_name
                 except:
                     img['src'] = ''
                     continue
-
-                image = Image.open(BytesIO(req.content))
-                image_name = 'img' + str(hash(img_url)) + '.png'
-                image.save(self.images_loc + image_name)
-                self.img_list['img_url'] = image_name
             else:
                 image_name = self.img_list['img_url']
             img['src'] = 'images/' + image_name
@@ -143,23 +141,27 @@ class EBook():
         return soup.prettify()
 
     def get_articles(self):
-        print('downloading articles')
+        print('download articles')
+        del_articles =[]
         for article in tqdm(self.articles):
 
             sleep(random.random())
             req = self.sess.get(csm_domain + article['link'], headers=headers, timeout=timeout)
 
             if req.status_code != 200:
-                print("{} is not available".format(article['title']))
-                self.articles.remove(article)
+                print("\nArticle: {} is not available\n".format(article['title']))
+                del_articles.append(article)
                 continue
 
             sim_html = self.simplify_html(req.text)
             sim_html = self.img_process(sim_html)
             article['content'] = sim_html
+        if len(del_articles) > 0:
+            for article in del_articles:
+                self.articles.remove(article)
 
     def save_ebook(self):
-        print('creating ebook')
+        print('create ebook')
         intCounter = 0
         strTOC = ""
         strHTML4Index = ""
