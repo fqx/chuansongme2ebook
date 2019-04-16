@@ -52,7 +52,7 @@ class EBook():
     def get_list_of_articles(self):
         #  get all pages
         pages = self.home.find('span', style=pages_style)
-        if not pages['a']:
+        if not pages('a'):
             page_num = 1
         else:
             page_num = int(pages('a')[-1].text)
