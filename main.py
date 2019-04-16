@@ -187,7 +187,7 @@ class EBook():
                             ) + article[
                                'title'] + '</title><style type="text/css">body{font-family: arial, sans-serif;}</style></head>' + \
                            str(strBody) + '</html>'
-            with open(strLocalFile, 'w') as f:
+            with open(strLocalFile, 'w', encoding='utf-8') as f:
                 f.write(strHTML4Post)
             mime = mimetypes.guess_type(strLocalFile, strict=True)
             manifest += '\t<item id = "file_%s" href="%s" media-type="%s"/>\n' % (intCounter, strLocalFilename, mime[0])
@@ -219,7 +219,7 @@ class EBook():
                          ) + self.bookName + "文章汇总</title>\n</head>\n<body>\n<h2>微信公众号：" + self.bookName + "</h2>\n<p>共" + \
                         str(len(
                             self.articles)) + "篇文章，制作时间：<em>" + strCurrentTimestamp + "</em></p>\n<ol>\n" + strHTML4Index + "\n</ol>\n</body>\n</html>"
-        with open(self.OEBPS_loc + 'index.html', 'w') as f:
+        with open(self.OEBPS_loc + 'index.html', 'w', encoding='utf-8') as f:
             f.write(strHTML4Index)
 
         # build opf
@@ -250,7 +250,7 @@ class EBook():
         </guide>
         </package>'''
 
-        with open(self.OEBPS_loc + 'package.opf', 'w') as f:
+        with open(self.OEBPS_loc + 'package.opf', 'w', encoding='utf-8') as f:
             f.write(template_top1)
             f.write(template_title)
             f.write(template_top2)
@@ -288,7 +288,7 @@ class EBook():
         <content src="index.html"/>
         </navPoint>''' + strTOC + '''</navmap>
         </ncx>'''
-        with open(self.OEBPS_loc + 'toc.ncx', 'w') as f:
+        with open(self.OEBPS_loc + 'toc.ncx', 'w', encoding='utf-8') as f:
             f.write(strTOC)
 
 if __name__ == "__main__":
