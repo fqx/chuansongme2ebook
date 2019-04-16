@@ -151,12 +151,8 @@ class EBook():
             sleep(random.random())
             try:
                 req = self.sess.get(csm_domain + article['link'], headers=headers, timeout=timeout)
+                req.raise_for_status()
             except:
-                print("\nArticle: {} is not available\n".format(article['title']))
-                del_articles.append(article)
-                continue
-
-            if req.status_code != 200:
                 print("\nArticle: {} is not available\n".format(article['title']))
                 del_articles.append(article)
                 continue
