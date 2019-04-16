@@ -52,7 +52,7 @@ class EBook():
     def get_list_of_articles(self):
         #  get all pages
         pages = self.home.find('span', style=pages_style)
-        page_num = len(pages.find_all('a')) + 1
+        page_num = int(pages('a')[-1].text)
         # page_num = 1 # debug
 
         for page in range(page_num):
