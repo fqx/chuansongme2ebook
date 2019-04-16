@@ -11,6 +11,7 @@ from time import strftime, sleep
 import random
 
 timeout = 2
+sleeptime = 120  # increase this if you encounter continuous NA errors
 csm_domain = r'https://chuansongme.com'
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.40 Safari/537.36",
@@ -155,6 +156,7 @@ class EBook():
             except:
                 print("\nArticle: {} is not available\n".format(article['title']))
                 del_articles.append(article)
+                sleep(sleeptime)
                 continue
 
             sim_html = self.simplify_html(req.text)
