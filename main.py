@@ -9,6 +9,8 @@ import os
 import mimetypes
 from time import strftime, sleep
 import random
+import datetime
+import sys
 
 timeout = 2
 sleeptime = 120  # increase this if you encounter continuous NA errors
@@ -26,6 +28,14 @@ def urlisgood(url):
         return True
     else:
         return False
+
+
+def str2date(str):
+    try:
+        date = datetime.datetime.strptime(str, '%Y-%m-%d')
+        return date
+    except:
+        sys.exit('date formart error, should look like 1989-06-04')
 
 
 class EBook():
@@ -144,10 +154,18 @@ class EBook():
 
         return soup.prettify()
 
-    def get_articles(self):
+    def get_articles(self, start='', end=''):
         print('download articles')
         del_articles =[]
         for article in tqdm(self.articles):
+            if start != '':
+                if str2date(article['date']) < str2date(start):
+                    del_articles.append(article)
+                    continue
+            if end != '':
+                if str2date(article['date']) > str2date(end):
+                    del_articles.append(article)
+                    continue
 
             sleep(random.random())
             try:
@@ -298,5 +316,5 @@ if __name__ == "__main__":
     url = input('Enter the url of the account: \n')
     ebook = EBook(url)
     ebook.get_list_of_articles()
-    ebook.get_articles()
+    ebook.get_articles(start='', end='')  # you can now add start and end date to limit articles
     ebook.save_ebook()
