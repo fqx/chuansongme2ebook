@@ -4,7 +4,7 @@ chardet==3.0.4
 cssselect==1.0.3
 idna==2.8
 lxml==4.6.2
-Pillow==8.1.1
+Pillow==8.2.0
 requests==2.21.0
 soupsieve==1.9
 tqdm==4.31.1
