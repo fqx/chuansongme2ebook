@@ -1,11 +1,11 @@
 beautifulsoup4==4.7.1
-certifi==2023.7.22
+certifi==2024.7.4
 chardet==3.0.4
 cssselect==1.0.3
 idna==3.7
 lxml==4.9.1
 Pillow==10.3.0
-requests==2.31.0
+requests==2.32.2
 soupsieve==1.9
 tqdm==4.66.3
-urllib3==1.26.18
+urllib3==1.26.19
