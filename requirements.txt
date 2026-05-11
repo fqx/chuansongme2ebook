@@ -8,4 +8,4 @@ Pillow==12.2.0
 requests==2.33.0
 soupsieve==1.9
 tqdm==4.66.3
-urllib3==2.6.3
+urllib3==2.7.0
