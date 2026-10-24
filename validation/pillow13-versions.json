@@ -1,0 +1,41 @@
+{
+  "ebook": {
+    "python": "3.12.14",
+    "packages": {
+      "beautifulsoup4": "4.7.1",
+      "certifi": "2024.7.4",
+      "chardet": "3.0.4",
+      "charset-normalizer": "3.5.2",
+      "cssselect": "1.0.3",
+      "idna": "3.15",
+      "lxml": "6.1.1",
+      "lxml_html_clean": "0.4.5",
+      "pillow": "13.0.0",
+      "pip": "25.0.1",
+      "requests": "2.33.0",
+      "soupsieve": "2.9",
+      "tqdm": "4.66.3",
+      "urllib3": "2.8.0"
+    }
+  },
+  "ebook311": {
+    "python": "3.11.17",
+    "packages": {
+      "beautifulsoup4": "4.7.1",
+      "certifi": "2024.7.4",
+      "chardet": "3.0.4",
+      "charset-normalizer": "3.5.2",
+      "cssselect": "1.0.3",
+      "idna": "3.15",
+      "lxml": "6.1.1",
+      "lxml_html_clean": "0.4.5",
+      "pillow": "13.0.0",
+      "pip": "24.0",
+      "requests": "2.33.0",
+      "setuptools": "79.0.1",
+      "soupsieve": "2.9",
+      "tqdm": "4.66.3",
+      "urllib3": "2.8.0"
+    }
+  }
+}

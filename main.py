@@ -141,9 +141,13 @@ class EBook():
                         img_url = csm_domain+img_url
                 try:
                     req = self.sess.get(img_url, headers=headers, timeout=timeout)
-                    image = Image.open(BytesIO(req.content))
                     image_name = 'img' + str(hash(img_url)) + '.png'
-                    image.save(self.images_loc + image_name)
+                    with Image.open(BytesIO(req.content)) as image:
+                        # Pillow 13 removed implicit I-mode PNG conversion.
+                        # Preserve its previous clipping to unsigned 16-bit PNG.
+                        if image.mode == 'I':
+                            image = image.convert('I;16')
+                        image.save(self.images_loc + image_name)
                     self.img_list['img_url'] = image_name
                 except:
                     img['src'] = ''

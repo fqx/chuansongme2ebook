@@ -7,7 +7,7 @@ import os
 import tempfile
 import threading
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import zlib
 
 from bs4 import BeautifulSoup
@@ -131,6 +131,42 @@ class CompatibilityTests(unittest.TestCase):
             response = session.get(self.origin + '/redirect', timeout=2)
             self.assertEqual(response.text, ARTICLE)
             self.assertEqual(len(response.history), 1)
+
+    def test_tiny_png_jpeg_gif_to_png(self):
+        book = self.ebook()
+        for format in ('PNG', 'JPEG', 'GIF'):
+            with self.subTest(format=format):
+                payload = BytesIO()
+                Image.new('RGB', (3, 2), 'blue').save(payload, format=format)
+                with patch.object(book.sess, 'get', return_value=Mock(content=payload.getvalue())):
+                    html = book.img_process(f'<img src="/{format.lower()}">')
+                src = BeautifulSoup(html, 'lxml').img['src']
+                with Image.open(Path(book.OEBPS_loc) / src) as result:
+                    self.assertEqual(result.format, 'PNG')
+                    self.assertEqual(result.size, (3, 2))
+                    self.assertEqual(result.convert('RGB').getpixel((0, 0))[2], 255 if format != 'JPEG' else 254)
+
+    def test_integer_image_clipped_to_16_bit_png(self):
+        book = self.ebook()
+        payload = BytesIO()
+        image = Image.new('I', (4, 1))
+        image.putdata([-1, 0, 65535, 70000])
+        image.save(payload, format='TIFF')
+        with patch.object(book.sess, 'get', return_value=Mock(content=payload.getvalue())):
+            html = book.img_process('<img src="/integer.tiff">')
+        src = BeautifulSoup(html, 'lxml').img['src']
+        with Image.open(Path(book.OEBPS_loc) / src) as result:
+            self.assertEqual(result.format, 'PNG')
+            self.assertEqual([result.getpixel((x, 0)) for x in range(4)], [0, 0, 65535, 65535])
+
+    def test_invalid_image_is_skipped(self):
+        book = self.ebook()
+        with patch.object(book.sess, 'get', return_value=Mock(content=b'not an image')):
+            html = book.img_process('<p>Keep text</p><img src="/invalid">')
+        soup = BeautifulSoup(html, 'lxml')
+        self.assertEqual(soup.img['src'], '')
+        self.assertIn('Keep text', soup.text)
+        self.assertEqual(list(Path(book.images_loc).iterdir()), [])
 
     def test_http_error_removes_unavailable_article(self):
         book = self.ebook()

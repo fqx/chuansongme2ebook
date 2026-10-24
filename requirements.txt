@@ -5,7 +5,7 @@ cssselect==1.0.3
 idna==3.15
 lxml==6.1.1
 lxml_html_clean==0.4.5
-Pillow==12.3.0
+Pillow==13.0.0
 requests==2.33.0
 soupsieve==2.9
 tqdm==4.66.3

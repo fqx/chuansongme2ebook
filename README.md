@@ -5,9 +5,8 @@ Use kindlegen or calibre to pack package.opf to ebook.
 
 ## Runtime and installation
 
-Use Python 3.10 or newer. Python 3.9 is not supported by the pinned
-Pillow, requests, urllib3, and SoupSieve versions. SoupSieve 2.9 therefore does
-not raise the existing dependency set's minimum Python version.
+Use Python 3.11 or newer. Pillow 13.0.0 raises the minimum Python version
+from 3.10 to 3.11 and fixes GHSA-65qm-jvmh-6pqg / CVE-2026-112400.
 
 ```sh
 python -m venv .venv
@@ -30,7 +29,8 @@ untrusted HTML.
 Tests use a loopback HTTP server and tiny in-memory HTML/PNG fixtures, with
 external destinations rejected. They cover account/article parsing, ordinary
 chunked Deflate responses, redirects, missing articles, date filtering, image
-saving, ebook file generation, and SoupSieve selector boundaries. No external
+saving (PNG/JPEG/GIF), integer-image conversion to 16-bit PNG, invalid-image
+skipping, ebook file generation, and SoupSieve selector boundaries. No external
 article/image requests or resource-exhaustion payloads are used. Ebook file
 creation is checked; Kindle/Calibre conversion and formal ebook validation are
 not covered.

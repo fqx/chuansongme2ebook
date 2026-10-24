@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-24",
+  "tests": {
+    "ebook-tests.log": {
+      "tests": 8,
+      "result": "passed",
+      "log_sha256": "91355cf2993b565216d0fd5965ab81f0757acf34c900c88322678e094ca98545"
+    },
+    "ebook311-tests.log": {
+      "tests": 8,
+      "result": "passed",
+      "log_sha256": "a2161763702c531ae7406b4455a380f288a7ad9dc4b703055f5a086bae901ee4"
+    }
+  },
+  "dependency_checks": {
+    "ebook": {
+      "exit_code": 0,
+      "output": "Using Python 3.12.14 environment at: pillow-security/venv-ebook\nChecked 14 packages in 34ms\nAll installed packages are compatible\n"
+    },
+    "ebook311": {
+      "exit_code": 0,
+      "output": "Using Python 3.11.17 environment at: pillow-security/venv-ebook311\nChecked 15 packages in 0.40ms\nAll installed packages are compatible\n"
+    }
+  }
+}
