@@ -7,6 +7,6 @@ lxml==6.1.1
 lxml_html_clean==0.4.5
 Pillow==13.0.0
 requests==2.33.0
-soupsieve==2.9
+soupsieve==4.1.1
 tqdm==4.66.3
 urllib3==2.8.0

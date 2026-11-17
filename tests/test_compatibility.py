@@ -1,9 +1,10 @@
 """Small offline fixtures; real requests/urllib3 transport, loopback only."""
 from contextlib import ExitStack
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from io import BytesIO
+from io import BytesIO, StringIO
 from pathlib import Path
 import os
+import runpy
 import tempfile
 import threading
 import unittest
@@ -13,6 +14,7 @@ import zlib
 from bs4 import BeautifulSoup
 from PIL import Image
 import requests
+import soupsieve
 import main
 
 HOME = '''<html><body><h1>Fixture Book</h1>
@@ -184,6 +186,58 @@ class CompatibilityTests(unittest.TestCase):
         soup = BeautifulSoup('<ol><li>A</li><li>B</li><li>C</li></ol>', 'lxml')
         self.assertEqual([li.text for li in soup.select('li:nth-child(2n-2)')], ['B'])
         self.assertEqual([li.text for li in soup.select('li:nth-child(n-1)')], ['A', 'B', 'C'])
+
+    def test_selector_api_and_cache_after_document_mutation(self):
+        soup = BeautifulSoup(
+            '<section><div><p class="entry" id="first">一</p></div>'
+            '<p class="entry" id="second">二</p></section>', 'lxml')
+        selector = 'section div p.entry'
+        compiled = soupsieve.compile(selector)
+        self.assertEqual([p['id'] for p in compiled.select(soup)], ['first'])
+        self.assertEqual(soup.select_one(selector)['id'], 'first')
+        self.assertEqual([p['id'] for p in soup.select('.entry', limit=1)], ['first'])
+        self.assertIsNone(soup.select_one('.missing'))
+        # A compiled selector must observe edits between independent selections.
+        soup.div.append(soup.find(id='second').extract())
+        self.assertEqual([p['id'] for p in compiled.select(soup)], ['first', 'second'])
+        soup.find(id='first').extract()
+        self.assertEqual([p['id'] for p in compiled.select(soup)], ['second'])
+        self.assertTrue(compiled.match(soup.find(id='second')))
+        with self.assertRaises(soupsieve.SelectorSyntaxError):
+            soup.select('p[')
+
+    def test_small_descendant_selector_no_match(self):
+        # Bounded fixture for the combinator rewritten in SoupSieve 4.0.
+        soup = BeautifulSoup('<div>' * 12 + 'text' + '</div>' * 12, 'lxml')
+        self.assertEqual(soup.select('section div div div'), [])
+        self.assertEqual(len(soup.select('div div div')), 10)
+
+    def test_interactive_cli_creates_ebook(self):
+        send = requests.Session.send
+        origin = self.origin
+        remote = 'https://chuansongme.com'
+
+        def redirect_to_fixture(session, request, **kwargs):
+            if request.url.startswith(remote + '/'):
+                request.url = origin + request.url[len(remote):]
+            # The surrounding test guard still rejects non-loopback destinations.
+            return send(session, request, **kwargs)
+
+        output = StringIO()
+        with patch.object(requests.Session, 'send', redirect_to_fixture), \
+                patch('builtins.input', return_value=remote + '/account/fixture') as prompt, \
+                patch('time.sleep'), patch('sys.stdout', output):
+            runpy.run_path(main.__file__, run_name='__main__')
+        prompt.assert_called_once()
+        self.assertIn('create ebook', output.getvalue())
+        root = Path('Fixture Book/OEBPS')
+        for name in ('index.html', 'package.opf', 'toc.ncx'):
+            self.assertTrue((root / name).is_file())
+        posts = list(root.glob('post*.html'))
+        self.assertEqual(len(posts), 1)
+        self.assertIn('Fixture article text.', posts[0].read_text())
+        self.assertNotIn('<script', posts[0].read_text())
+        self.assertEqual(len(list((root / 'images').glob('*.png'))), 1)
 
 
 if __name__ == '__main__':
